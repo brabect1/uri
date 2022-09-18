@@ -6,6 +6,22 @@
 
 # -------------------------------------------------------------------------
 
+if {[lsearch [namespace children] ::tcltest] == -1} {
+set selfrun 1
+lappend auto_path [pwd]
+package require tcltest
+namespace import ::tcltest::*
+source uri.tcl
+source urn-scheme.tcl
+proc dictsort {dict} {
+    array set a $dict
+    set out [list]
+    foreach key [lsort [array names a]] {
+        lappend out $key $a($key)
+    }
+    return $out
+}
+} else {
 source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
@@ -18,6 +34,7 @@ support {
 }
 testing {
     useLocal urn-scheme.tcl uri::urn
+}
 }
 
 # -------------------------------------------------------------------------
@@ -166,7 +183,11 @@ foreach {utf8 quoted} $data {
 # Clean up the tests
 
 unset data
+if {[info exists selfrun]} {
+tcltest::cleanupTests
+} else {
 testsuiteCleanup
+}
 return
 
 # Local variables:

@@ -10,6 +10,21 @@
 
 # -------------------------------------------------------------------------
 
+if {[lsearch [namespace children] ::tcltest] == -1} {
+set selfrun 1
+lappend auto_path [pwd]
+package require tcltest
+namespace import ::tcltest::*
+source uri.tcl
+proc dictsort {dict} {
+    array set a $dict
+    set out [list]
+    foreach key [lsort [array names a]] {
+        lappend out $key $a($key)
+    }
+    return $out
+}
+} else {
 source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
@@ -19,6 +34,7 @@ testsNeedTcltest 1.0
 
 testing {
     useLocal uri.tcl uri
+}
 }
 
 # -------------------------------------------------------------------------
@@ -2436,7 +2452,11 @@ test uri-15.15 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, 
 
 # -------------------------------------------------------------------------
 
+if {[info exists selfrun]} {
+tcltest::cleanupTests
+} else {
 testsuiteCleanup
+}
 return
 
 # -------------------------------------------------------------------------
