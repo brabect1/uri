@@ -10,15 +10,15 @@
 
 package require uri      1.1.2
 
-namespace eval ::uri {}
-namespace eval ::uri::urn {}
+namespace eval uri {}
+namespace eval uri::urn {}
 
 # -------------------------------------------------------------------------
 
 # Description:
 #   Called by uri::split with a url to split into its parts.
 #
-proc ::uri::SplitUrn {uri} {
+proc uri::SplitUrn {uri} {
     #@c Split the given uri into then URN component parts
     #@a uri: the URI to split without it's scheme part.
     #@r List of the component parts suitable for 'array set'
@@ -35,7 +35,7 @@ proc ::uri::SplitUrn {uri} {
 
 # -------------------------------------------------------------------------
 
-proc ::uri::JoinUrn args {
+proc uri::JoinUrn args {
     #@c Join the parts of a URN scheme URI
     #@a list of nid value nss value
     #@r a valid string representation for your URI
@@ -54,7 +54,7 @@ proc ::uri::JoinUrn args {
 
 # Quote the disallowed characters according to the RFC for URN scheme.
 # ref: RFC2141 sec2.2
-proc ::uri::urn::quote {url} {
+proc uri::urn::quote {url} {
     variable trans
     
     set ndx 0
@@ -90,7 +90,7 @@ if { [package vcompare [package provide Tcl] 8.3] < 0 } {
     # Before Tcl 8.3 we do not have 'regexp -start'. We simulate it by
     # using 'string range' and adjusting the match results.
 
-    proc ::uri::urn::unquote {url} {
+    proc uri::urn::unquote {url} {
         set result ""
         set start 0
         while {[regexp -indices {%[0-9a-fA-F]{2}} [string range $url $start end] match]} {
@@ -106,7 +106,7 @@ if { [package vcompare [package provide Tcl] 8.3] < 0 } {
         return [encoding convertfrom utf-8 $result]
     }
 } else {
-    proc ::uri::urn::unquote {url} {
+    proc uri::urn::unquote {url} {
         set result ""
         set start 0
         while {[regexp -start $start -indices {%[0-9a-fA-F]{2}} $url match]} {
@@ -123,7 +123,7 @@ if { [package vcompare [package provide Tcl] 8.3] < 0 } {
 
 # -------------------------------------------------------------------------
 
-::uri::register {urn URN} {
+uri::register {urn URN} {
 	variable NIDpart {[a-zA-Z0-9][a-zA-Z0-9-]{0,31}}
         variable esc {%[0-9a-fA-F]{2}}
         variable trans {a-zA-Z0-9$_.+!*'(,):=@;-}

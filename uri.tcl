@@ -13,7 +13,7 @@
 
 package require Tcl 8.2
 
-namespace eval ::uri {
+namespace eval uri {
 
     namespace export split join
     namespace export resolve isrelative
@@ -124,7 +124,7 @@ namespace eval ::uri {
     } ;# basic {}
 }
 
-# ::uri::setQuirkOption
+# uri::setQuirkOption
 #
 #	Accessor command for quirk options; uses "set" semantics.
 #
@@ -144,7 +144,7 @@ namespace eval ::uri {
 # Results:
 #	The value of the quirk option.
 
-proc ::uri::setQuirkOption {key args} {
+proc uri::setQuirkOption {key args} {
     variable Quirks
 
     if {![info exists Quirks($key)]} {
@@ -162,16 +162,16 @@ proc ::uri::setQuirkOption {key args} {
 	set Quirks($key) [expr {$value && $value}]
 	return $value
     } else {
-        return -code error {wrong # args: should be "::uri::setQuirkOption\
+        return -code error {wrong # args: should be "uri::setQuirkOption\
 		key ?newBooleanValue?"}
     }
 }
 
 
-# ::uri::register --
+# uri::register --
 #
 #	Register a scheme (and aliases) in the package. The command
-#	creates a namespace below "::uri" with the same name as the
+#	creates a namespace below "uri" with the same name as the
 #	scheme and executes the script declaring the pattern variables
 #	for this scheme in the new namespace. At last it updates the
 #	uri variables keeping track of overall scheme information.
@@ -192,7 +192,7 @@ proc ::uri::setQuirkOption {key args} {
 # Results:
 #	None.
 
-proc ::uri::register {schemeList script} {
+proc uri::register {schemeList script} {
     variable schemes
     variable schemePattern
     variable url
@@ -236,7 +236,7 @@ proc ::uri::register {schemeList script} {
     return
 }
 
-# ::uri::split --
+# uri::split --
 #
 #	Splits the given <a url> into its constituents.
 #
@@ -246,7 +246,7 @@ proc ::uri::register {schemeList script} {
 # Results:
 #	Tcl list containing constituents, suitable for 'array set'.
 
-proc ::uri::split {url {defaultscheme http}} {
+proc uri::split {url {defaultscheme http}} {
 
     set url [string trim $url]
     set scheme {}
@@ -288,7 +288,7 @@ proc ::uri::split {url {defaultscheme http}} {
     return [array get parts]
 }
 
-proc ::uri::SplitFtp {url} {
+proc uri::SplitFtp {url} {
     # @c Splits the given ftp-<a url> into its constituents.
     # @a url: The url to split, without! scheme specification.
     # @r List containing the constituents, suitable for 'array set'.
@@ -336,7 +336,7 @@ proc ::uri::SplitFtp {url} {
     return [array get parts]
 }
 
-proc ::uri::JoinFtp args {
+proc uri::JoinFtp args {
     set uphp [eval [linsert $args 0 ComposeUPHP {}]]
 
     array set components {
@@ -370,15 +370,15 @@ proc ::uri::JoinFtp args {
     return ftp://${uphp}$components(path)$type
 }
 
-proc ::uri::SplitHttps {url} {
+proc uri::SplitHttps {url} {
     return [SplitHttpInner https $url]
 }
 
-proc ::uri::SplitHttp {url} {
+proc uri::SplitHttp {url} {
     return [SplitHttpInner http $url]
 }
 
-proc ::uri::SplitHttpInner {scheme url} {
+proc uri::SplitHttpInner {scheme url} {
     # @c Splits the given http-<a url> into its constituents.
     # @a url: The url to split, without! scheme specification.
     # @r List containing the constituents, suitable for 'array set'.
@@ -445,15 +445,15 @@ proc ::uri::SplitHttpInner {scheme url} {
     return [array get parts]
 }
 
-proc ::uri::JoinHttp {args} {
-    return [eval [linsert $args 0 ::uri::JoinHttpInner http 80]]
+proc uri::JoinHttp {args} {
+    return [eval [linsert $args 0 uri::JoinHttpInner http 80]]
 }
 
-proc ::uri::JoinHttps {args} {
-    return [eval [linsert $args 0 ::uri::JoinHttpInner https 443]]
+proc uri::JoinHttps {args} {
+    return [eval [linsert $args 0 uri::JoinHttpInner https 443]]
 }
 
-proc ::uri::JoinHttpInner {scheme defport args} {
+proc uri::JoinHttpInner {scheme defport args} {
     set uphp [eval [linsert $args 0 ComposeUPHP $defport]]
 
     array set components {pbare 0 path {} query {} fragment {}}
@@ -484,7 +484,7 @@ proc ::uri::JoinHttpInner {scheme defport args} {
     return $scheme://$uphp$components(path)$query$components(fragment)
 }
 
-proc ::uri::SplitFile {url} {
+proc uri::SplitFile {url} {
     # @c Splits the given file-<a url> into its constituents.
     # @a url: The url to split, without! scheme specification.
     # @r List containing the constituents, suitable for 'array set'.
@@ -525,7 +525,7 @@ proc ::uri::SplitFile {url} {
     return [array get parts]
 }
 
-proc ::uri::JoinFile args {
+proc uri::JoinFile args {
     variable Quirks
     array set components {
 	host {} port {} path {}
@@ -555,7 +555,7 @@ proc ::uri::JoinFile args {
     }
 }
 
-proc ::uri::SplitMailto {url} {
+proc uri::SplitMailto {url} {
     # @c Splits the given mailto-<a url> into its constituents.
     # @a url: The url to split, without! scheme specification.
     # @r List containing the constituents, suitable for 'array set'.
@@ -568,7 +568,7 @@ proc ::uri::SplitMailto {url} {
     }
 }
 
-proc ::uri::JoinMailto args {
+proc uri::JoinMailto args {
     array set components {
 	user {} host {}
     }
@@ -577,7 +577,7 @@ proc ::uri::JoinMailto args {
     return mailto:$components(user)@$components(host)
 }
 
-proc ::uri::SplitNews {url} {
+proc uri::SplitNews {url} {
     if { [string first @ $url] >= 0 } {
 	return [list message-id $url]
     } else {
@@ -585,7 +585,7 @@ proc ::uri::SplitNews {url} {
     }
 }
 
-proc ::uri::JoinNews args {
+proc uri::JoinNews args {
     array set components {
 	message-id {} newsgroup-name {}
     }
@@ -593,11 +593,11 @@ proc ::uri::JoinNews args {
     return news:$components(message-id)$components(newsgroup-name)
 }
 
-proc ::uri::SplitLdaps {url} {
-    ::uri::SplitLdap $url
+proc uri::SplitLdaps {url} {
+    uri::SplitLdap $url
 }
 
-proc ::uri::SplitLdap {url} {
+proc uri::SplitLdap {url} {
     # @c Splits the given Ldap-<a url> into its constituents.
     # @a url: The url to split, without! scheme specification.
     # @r List containing the constituents, suitable for 'array set'.
@@ -631,15 +631,15 @@ proc ::uri::SplitLdap {url} {
     return [array get parts]
 }
 
-proc ::uri::JoinLdap {args} {
-    return [eval [linsert $args 0 ::uri::JoinLdapInner ldap 389]]
+proc uri::JoinLdap {args} {
+    return [eval [linsert $args 0 uri::JoinLdapInner ldap 389]]
 }
 
-proc ::uri::JoinLdaps {args} {
-    return [eval [linsert $args 0 ::uri::JoinLdapInner ldaps 636]]
+proc uri::JoinLdaps {args} {
+    return [eval [linsert $args 0 uri::JoinLdapInner ldaps 636]]
 }
 
-proc ::uri::JoinLdapInner {scheme defport args} {
+proc uri::JoinLdapInner {scheme defport args} {
     array set components {host {} port {} dn {} attrs {} scope {} filter {} extensions {}}
     set       components(port) $defport
     array set components $args
@@ -669,7 +669,7 @@ proc ::uri::JoinLdapInner {scheme defport args} {
     return $url
 }
 
-proc ::uri::ComposeUPHP {defport args} {
+proc uri::ComposeUPHP {defport args} {
     # user:pwd@host:port
 
     array set components {
@@ -691,7 +691,7 @@ proc ::uri::ComposeUPHP {defport args} {
     return ${userPwd}$components(host)${port}
 }
 
-proc ::uri::GetUPHP {urlvar} {
+proc uri::GetUPHP {urlvar} {
     # @c Parse user, password host and port out of the url stored in
     # @c variable <a urlvar>.
     # @d Side effect: The extracted information is removed from the given url.
@@ -756,7 +756,7 @@ proc ::uri::GetUPHP {urlvar} {
     return [array get parts]
 }
 
-# ::uri::resolve --
+# uri::resolve --
 #
 #	Resolve an arbitrary URL, given a base URL
 #
@@ -776,7 +776,7 @@ proc ::uri::GetUPHP {urlvar} {
 # Results:
 #	Returns a URL
 
-proc ::uri::resolve {base url} {
+proc uri::resolve {base url} {
     if {[isrelative $url]} {
 	set canon 1
 	array set baseparts [split $base]
@@ -887,7 +887,7 @@ proc ::uri::resolve {base url} {
     }
 }
 
-# ::uri::isrelative --
+# uri::isrelative --
 #
 #	Determines whether a URL is absolute or relative
 #
@@ -897,11 +897,11 @@ proc ::uri::resolve {base url} {
 # Results:
 #	Returns 1 if the URL is relative, 0 otherwise
 
-proc ::uri::isrelative url {
+proc uri::isrelative url {
     return [expr {![regexp -- {^[A-Za-z][A-Za-z0-9+.-]*:} $url]}]
 }
 
-# ::uri::geturl --
+# uri::geturl --
 #
 #	Fetch the data from an arbitrary URL.
 #
@@ -915,7 +915,7 @@ proc ::uri::isrelative url {
 # Results:
 #	Depends on scheme
 
-proc ::uri::geturl {url args} {
+proc uri::geturl {url args} {
     array set urlparts [split $url]
 
     switch -- $urlparts(scheme) {
@@ -934,7 +934,7 @@ proc ::uri::geturl {url args} {
     }
 }
 
-# ::uri::file_geturl --
+# uri::file_geturl --
 #
 #	geturl implementation for file: scheme
 #
@@ -949,7 +949,7 @@ proc ::uri::geturl {url args} {
 # Results:
 #	Returns data from file
 
-proc ::uri::file_geturl {url args} {
+proc uri::file_geturl {url args} {
     variable file:counter
 
     set var [namespace current]::file[incr file:counter]
@@ -968,7 +968,7 @@ proc ::uri::file_geturl {url args} {
     return $var
 }
 
-# ::uri::join --
+# uri::join --
 #
 #	Format a URL
 #
@@ -978,13 +978,13 @@ proc ::uri::file_geturl {url args} {
 # Results:
 #	A URL
 
-proc ::uri::join args {
+proc uri::join args {
     array set components $args
 
     return [eval [linsert $args 0 Join[string totitle $components(scheme)]]]
 }
 
-# ::uri::canonicalize --
+# uri::canonicalize --
 #
 #	Canonicalize a URL
 #
@@ -1000,7 +1000,7 @@ proc ::uri::join args {
 #	This is not full URI "normalization" which may require further
 #	processing.
 
-proc ::uri::canonicalize uri {
+proc uri::canonicalize uri {
     # Make uri canonical with respect to dots (path changing commands)
     #
     # Remove single dots (.)  => pwd not changing
@@ -1018,7 +1018,7 @@ proc ::uri::canonicalize uri {
     # In the text above 'ignore' means
     # 'return the url unchanged to the caller'.
 
-    if {[catch {array set u [::uri::split $uri]}]} {
+    if {[catch {array set u [uri::split $uri]}]} {
 	return $uri
     }
     if {![info exists u(path)]} {
@@ -1032,13 +1032,13 @@ proc ::uri::canonicalize uri {
     set u(path) [RemoveDotSegments $u(path)]
     AddQuirk3986 u
 
-    set uri [eval [linsert [array get u] 0 ::uri::join]]
+    set uri [eval [linsert [array get u] 0 uri::join]]
 
     return $uri
 }
 
 
-# ::uri::RemoveDotSegments --
+# uri::RemoveDotSegments --
 #
 #	Remove any segments "." and ".." from a URI path.
 #	Optionally remove empty segments {}.
@@ -1056,7 +1056,7 @@ proc ::uri::canonicalize uri {
 # Results:
 #	The URI path in its canonical form.
 
-proc ::uri::RemoveDotSegments path {
+proc uri::RemoveDotSegments path {
     variable Quirks
 
     set oldList [::split $path /]
@@ -1118,7 +1118,7 @@ proc ::uri::RemoveDotSegments path {
 }
 
 
-# ::uri::RemoveQuirk3986
+# uri::RemoveQuirk3986
 #
 #	Work on an array produced by uri::split. Read the path and pbare
 #	elements, and convert the path element to RFC 3986 compliance from
@@ -1135,7 +1135,7 @@ proc ::uri::RemoveDotSegments path {
 # Results:
 #	No return value.  The array is modified as a side effect.
 
-proc ::uri::RemoveQuirk3986 {arrName} {
+proc uri::RemoveQuirk3986 {arrName} {
     variable Quirks
     upvar 1 $arrName u
 
@@ -1176,7 +1176,7 @@ proc ::uri::RemoveQuirk3986 {arrName} {
     return
 }
 
-# ::uri::AddQuirk3986
+# uri::AddQuirk3986
 #
 #	Work on an array produced by uri::split. Read the path element, and
 #	convert the path and pbare elements from RFC 3986 compliance to
@@ -1189,7 +1189,7 @@ proc ::uri::RemoveQuirk3986 {arrName} {
 # Results:
 #	No return value.  The array is modified as a side effect.
 
-proc ::uri::AddQuirk3986 arrName {
+proc uri::AddQuirk3986 arrName {
     variable Quirks
     upvar 1 $arrName u
 
@@ -1268,7 +1268,7 @@ proc ::uri::AddQuirk3986 arrName {
 # ------------------------------------------------------------------------------
 # (1) THE PATTERNS DEFINED BELOW (with one exception) ARE NOT USED FOR PARSING
 #     URLs BY ANY OF THIS PACKAGE'S COMMANDS.
-# (2) THAT EXCEPTION IS THE VARIABLE ::uri::ftp::typepart
+# (2) THAT EXCEPTION IS THE VARIABLE uri::ftp::typepart
 # (3) AS LONG AS THAT VARIABLE IS ASSIGNED THE CORRECT VALUE, ALL THE
 #     uri::register CALLS CAN BE DELETED WITHOUT AFFECTING THE uri::* COMMANDS.
 # (2) REGISTRATION OF A SCHEME DOES NOT IMPLEMENT COMMANDS FOR THAT SCHEME.
